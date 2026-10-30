@@ -1,0 +1,20 @@
+[workspace]
+authors = ["Max Lounsbery <maximuslouns@gmail.com>"]
+channels = ["robostack-humble", "conda-forge"]
+name = "lab3"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+sim = "ros2 run turtlesim turtlesim_node"
+build = "colcon build --symlink-install"
+
+[activation]
+scripts = ["install/setup.sh"]
+
+[dependencies]
+ros-humble-desktop = ">=0.10.0,<0.11"
+ros-humble-turtlesim = ">=1.4.3,<2"
+colcon-common-extensions = ">=0.3.0,<0.4"
+python = "3.12.*"
+ros-humble-irobot-create-msgs = ">=2.1.0,<3"
