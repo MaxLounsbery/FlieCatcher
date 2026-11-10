@@ -7,12 +7,27 @@ from rcl_interfaces.msg import Parameter, ParameterType
 class CatcherPub(Node):
     def __init__(self):
         super().__init__('pub')
+        param = Parameter()
+        param.name = "safety_override"
+        param.value.type = ParameterType.PARAMETER_STRING
+        param.value.string_value = "full"
+
+        self.set_param('/rogue/motion_control/set_parameters', param)
 
         self.publisher = self.create_publisher(Twist, '/rogue/cmd_vel', 10)
 
-        for i in range(5):
-            self.set_speed(3.0)
+    def set_param(self, param_path, param):
+        client = self.create_client(SetParameters, param_path)
+        while not client.wait_for_service(timeout_sec = 1.0):
+            self.get_logger().info("Waiting")
+        self.get_logger().info("Found: %s" % param_path)
 
+        param_req = SetParameters.Request()
+        param_req.parameters.append(param)
+
+        future = client.call_async(param_req)
+        rclpy.spin_until_future_complete(self, future)
+        self.get_logger().info("Response: %s" % future.result())
 
     def set_heading(self, offset):
         control = Twist()
