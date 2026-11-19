@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY . .
 
+RUN chmod +x start.sh
+
 RUN colcon build
 
-RUN . install/setup.bash
-
-CMD ros2 run pub fly_catcher
+CMD start.sh
