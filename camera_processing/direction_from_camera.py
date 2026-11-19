@@ -30,6 +30,9 @@ class ImageProcessor:
         # what x, y on the image represents a centered point
         centerX=320,
         centerY=240,
+        # angle (degrees) off of the center point that relative angles are measured from
+        # 0 is straight right of center, increasing counterclockwise (90 is straight up)
+        baseAngle=0,
     ):
         self.targetR = targetR / 255
         self.targetG = targetG / 255
@@ -41,12 +44,16 @@ class ImageProcessor:
         self.centerX = centerX
         self.centerY = centerY
 
-    def highlited(self, image):
+        self.baseAngle = baseAngle
+
+    def highlighted(self, image, blur=False):
         """
         given a RGB888 image of dimensions (imageX, imageY, 3) in BGR order 
         
-        returns a 'highlighted' int16_t version that prioritizes targetted colors 
+        returns a 'highlighted' int16_t version that prioritizes targetted colors
         and disincentivizes untargeted colors
+
+        if blur, the result is gaussian blurred so single noisy pixels are smoothed out
         """
         b, g, r = np.split(image, 3, axis=2)
 
@@ -56,4 +63,66 @@ class ImageProcessor:
         g = (2 * self.targetG - 1) * g.astype(np.int16)
         b = (2 * self.targetB - 1) * b.astype(np.int16)
 
-        return r + g + b
+        highlight = r + g + b
+
+        # GaussianBlur drops the single channel axis, so add it back to keep the shape the same
+        if blur:
+            highlight = cv2.GaussianBlur(highlight, (15, 15), 0)[:, :, np.newaxis]
+
+        return highlight
+
+    def targetPoint(self, image):
+        """
+        given a RGB888 image of dimensions (imageX, imageY, 3) in BGR order
+
+        returns the (x, y) of the most 'targeted' point in the image,
+        or None if nothing in the image is targeted
+        """
+        highlight = self.highlighted(image, blur=True)[:, :, 0]
+
+        # flat index of the strongest point, converted back to (row, col)
+        y, x = np.unravel_index(np.argmax(highlight), highlight.shape)
+
+        # nothing leans towards the target color, so there is no target
+        if highlight[y, x] <= 0:
+            return None
+
+        return int(x), int(y)
+
+    def angleToTarget(self, image):
+        """
+        given a RGB888 image of dimensions (imageX, imageY, 3) in BGR order
+
+        returns the angle (degrees) from the center point to the target point,
+        0 is straight right of center, increasing counterclockwise, in the range (-180, 180]
+        returns None if there is no target
+        """
+        target = self.targetPoint(image)
+        if target is None:
+            return None
+
+        x, y = target
+        dx = x - self.centerX
+        # image y grows downwards, flip it so up is positive
+        dy = self.centerY - y
+
+        return float(np.degrees(np.arctan2(dy, dx)))
+
+    def relativeAngle(self, image):
+        """
+        given a RGB888 image of dimensions (imageX, imageY, 3) in BGR order
+
+        returns the angle (degrees) of the target point relative to baseAngle,
+        positive is counterclockwise of baseAngle, in the range (-180, 180]
+        returns None if there is no target
+        """
+        angle = self.angleToTarget(image)
+        if angle is None:
+            return None
+
+        # wrap the difference back into (-180, 180]
+        relative = (angle - self.baseAngle) % 360
+        if relative > 180:
+            relative -= 360
+
+        return relative
