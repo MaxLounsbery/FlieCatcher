@@ -3,7 +3,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from rcl_interfaces.srv import SetParameters
 from rcl_interfaces.msg import Parameter, ParameterType
-from camera_processing import CameraWorker, ImageProcessor
+# from camera_processing import CameraWorker, ImageProcessor
 
 class CatcherPub(Node):
     def __init__(self):
