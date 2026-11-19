@@ -3,6 +3,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from rcl_interfaces.srv import SetParameters
 from rcl_interfaces.msg import Parameter, ParameterType
+from camera_processing import CameraWorker, ImageProcessor
 
 class CatcherPub(Node):
     def __init__(self):
@@ -40,9 +41,40 @@ class CatcherPub(Node):
         return control
 
 def main():
+    angle_tolerance = 10
+    dist_tolerance = 10
+
     rclpy.init()
+    camera = CameraWorker()
+    image_processor = ImageProcessor()
     catcher_pub = CatcherPub()
     rclpy.spin(catcher_pub)
+
+    center = 320, 240
+
+    while (True):
+        frame = camera.getImage()
+        relative_angle = image_processor.relativeAngle(frame)
+        target = image_processor.targetPoint(frame)
+        # Set heading tests
+        # control = relative_angle / 180
+        # catcher_pub.set_heading(control)
+        if abs(relative_angle) <= angle_tolerance:
+            # do nothing
+            pass
+        elif relative_angle > 0:
+            catcher_pub.set_heading(1)
+        elif relative_angle < 0:
+            catcher_pub.set_heading(-1)
+
+        # Set accel tests (assumes the center of the frame is safe)
+        distance = (target[0] - center[0]), (target[1] - center[1])
+        if abs(distance) <= dist_tolerance:
+            # do nothing
+            pass
+        elif distance > 0:
+            catcher_pub.set_speed(1)
+
     rclpy.shutdown()
 
 if __name__ == "__main__":
