@@ -8,4 +8,4 @@ RUN chmod +x start.sh
 
 RUN colcon build
 
-CMD start.sh
+CMD ./start.sh
