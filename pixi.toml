@@ -13,8 +13,7 @@ build = "colcon build --symlink-install"
 scripts = ["install/setup.sh"]
 
 [dependencies]
-ros-humble-desktop = ">=0.10.0,<0.11"
-ros-humble-turtlesim = ">=1.4.3,<2"
+ros-humble-ros-base = "*"
 colcon-common-extensions = ">=0.3.0,<0.4"
 python = "3.12.*"
 ros-humble-irobot-create-msgs = ">=2.1.0,<3"
