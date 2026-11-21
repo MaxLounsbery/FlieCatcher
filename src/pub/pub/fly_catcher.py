@@ -14,15 +14,12 @@ class CatcherPub(Node):
     def __init__(self):
         super().__init__('pub')
 
-        cam = CameraWorker()
-        cam.getImage()
-        self.get_logger().info("done!")
-        # param = Parameter()
-        # param.name = "safety_override"
-        # param.value.type = ParameterType.PARAMETER_STRING
-        # param.value.string_value = "full"
+        param = Parameter()
+        param.name = "safety_override"
+        param.value.type = ParameterType.PARAMETER_STRING
+        param.value.string_value = "full"
 
-        # self.set_param('/rogue/motion_control/set_parameters', param)
+        self.set_param('/rogue/motion_control/set_parameters', param)
 
         # self.publisher = self.create_publisher(Twist, '/rogue/cmd_vel', 10)
         # self.publisher.publish(self.set_speed(1.0))
@@ -55,9 +52,15 @@ def main():
     # dist_tolerance = 10
 
     rclpy.init()
-    # camera = CameraWorker()
-    # image_processor = ImageProcessor()
+    camera = CameraWorker()
+    image_processor = ImageProcessor()
+    frame = camera.getImage()
+    cv2.imwrite("highlighted", image_processor.highlighted(frame))
     catcher_pub = CatcherPub()
+    catcher_pub.get_logger().info("targetPoint: ")
+    catcher_pub.get_logger().info(image_processor.targetPoint(frame))
+    catcher_pub.get_logger().info("angleTarget: ")
+    catcher_pub.get_logger().info(image_processor.angleToTarget(frame))
     rclpy.spin(catcher_pub)
 
     # center = 320, 240
@@ -101,7 +104,6 @@ class CameraWorker:
         self.picam2.start()
 
     def getImage(self):
-        self.picam2.capture_file("test_photo.jpg")
         return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order
 
 
