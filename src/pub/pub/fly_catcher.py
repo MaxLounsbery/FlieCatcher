@@ -55,7 +55,7 @@ def main():
     camera = CameraWorker()
     image_processor = ImageProcessor()
     frame = camera.getImage()
-    cv2.imwrite("highlighted", image_processor.highlighted(frame))
+    cv2.imwrite("highlighted.jpg", image_processor.highlighted(frame))
     catcher_pub = CatcherPub()
     catcher_pub.get_logger().info("targetPoint: ")
     catcher_pub.get_logger().info(image_processor.targetPoint(frame))
