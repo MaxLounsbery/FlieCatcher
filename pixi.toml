@@ -17,3 +17,16 @@ ros-humble-ros-base = "*"
 colcon-common-extensions = ">=0.3.0,<0.4"
 python = "3.12.*"
 ros-humble-irobot-create-msgs = ">=2.1.0,<3"
+libcamera = ">=0.5.1,<0.6"
+numpy = ">=2.5.4,<3"
+c-compiler = ">=2.0.0,<3"
+pykms = ">=0.dev.2025.8.7,<0.1dev"
+
+[pypi-dependencies]
+picamera2 = ">=0.3.39, <0.4"
+opencv-python-headless = ">=5.1.0.95, <6"
+
+[activation.env]
+LIBCAMERA_IPA_PROXY_PATH = "$CONDA_PREFIX/libexec/libcamera"
+LIBCAMERA_IPA_MODULE_PATH = "$CONDA_PREFIX/lib/libcamera/ipa"
+LIBCAMERA_IPA_CONFIG_PATH = "/usr/share/libcamera/ipa"
