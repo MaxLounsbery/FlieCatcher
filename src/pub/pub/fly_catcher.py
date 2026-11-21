@@ -13,15 +13,19 @@ import time
 class CatcherPub(Node):
     def __init__(self):
         super().__init__('pub')
-        param = Parameter()
-        param.name = "safety_override"
-        param.value.type = ParameterType.PARAMETER_STRING
-        param.value.string_value = "full"
 
-        self.set_param('/rogue/motion_control/set_parameters', param)
+        cam = CameraWorker()
+        cam.getImage()
+        self.get_logger().info("done!")
+        # param = Parameter()
+        # param.name = "safety_override"
+        # param.value.type = ParameterType.PARAMETER_STRING
+        # param.value.string_value = "full"
 
-        self.publisher = self.create_publisher(Twist, '/rogue/cmd_vel', 10)
-        self.publisher.publish(self.set_speed(1.0))
+        # self.set_param('/rogue/motion_control/set_parameters', param)
+
+        # self.publisher = self.create_publisher(Twist, '/rogue/cmd_vel', 10)
+        # self.publisher.publish(self.set_speed(1.0))
 
     def set_param(self, param_path, param):
         client = self.create_client(SetParameters, param_path)
