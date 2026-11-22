@@ -108,7 +108,11 @@ class CameraWorker:
     #     return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order
 
     def __init__(self):
-        self.cam = cv2.VideoCapture(0)
+        for i in range(10):
+            self.cam = cv2.VideoCapture(i)
+            if self.cam.isOpened():
+                return 
+            self.cam.release()
 
     def getImage(self):
         ret, frame = self.cam.read()
