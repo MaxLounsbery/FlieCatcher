@@ -96,28 +96,16 @@ if __name__ == "__main__":
 
 # cam code
 class CameraWorker:
-    # def __init__(self):
-    #     self.picam2 = Picamera2()
-    #     config = self.picam2.create_preview_configuration(
-    #         main={"size": (640, 480), "format": "RGB888"}, queue=False
-    #     )
-    #     self.picam2.configure(config)
-    #     self.picam2.start()
-
-    # def getImage(self):
-    #     return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order
-
     def __init__(self):
-        for i in range(10):
-            self.cam = cv2.VideoCapture(i)
-            if self.cam.isOpened():
-                return 
-            self.cam.release()
+        self.picam2 = Picamera2()
+        config = self.picam2.create_preview_configuration(
+            main={"size": (640, 480), "format": "RGB888"}, queue=False
+        )
+        self.picam2.configure(config)
+        self.picam2.start()
 
     def getImage(self):
-        ret, frame = self.cam.read()
-        return frame
-
+        return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order
 
 class ImageProcessor:
     def __init__(
