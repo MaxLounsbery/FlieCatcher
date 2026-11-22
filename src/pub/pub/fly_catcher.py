@@ -53,7 +53,7 @@ def main():
 
     rclpy.init()
     camera = CameraWorker()
-    image_processor = ImageProcessor()
+    image_processor = ImageProcessor(imageX = 1920, imageY = 1080, centerX = 960, centerY = 540)
     frame = camera.getImage()
     cv2.imwrite("original.jpg", frame)
     cv2.imwrite("highlighted.jpg", image_processor.highlighted(frame))
@@ -96,16 +96,23 @@ if __name__ == "__main__":
 
 # cam code
 class CameraWorker:
+    # def __init__(self):
+    #     self.picam2 = Picamera2()
+    #     config = self.picam2.create_preview_configuration(
+    #         main={"size": (640, 480), "format": "RGB888"}, queue=False
+    #     )
+    #     self.picam2.configure(config)
+    #     self.picam2.start()
+
+    # def getImage(self):
+    #     return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order
+
     def __init__(self):
-        self.picam2 = Picamera2()
-        config = self.picam2.create_preview_configuration(
-            main={"size": (640, 480), "format": "RGB888"}, queue=False
-        )
-        self.picam2.configure(config)
-        self.picam2.start()
+        self.cam = cv2.VideoCapture(0)
 
     def getImage(self):
-        return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order
+        ret, frame = self.cam.read()
+        return frame
 
 
 class ImageProcessor:
