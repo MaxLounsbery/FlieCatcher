@@ -23,6 +23,10 @@ class CatcherPub(Node):
 
         self.set_param('/rogue/motion_control/set_parameters', param)
         self.publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+        self.camera = CameraWorker()
+        self.image_processor = ImageProcessor()
+
+        self.create_timer(0.1, self.timer_callback)
 
     def set_param(self, param_path, param):
         client = self.create_client(SetParameters, param_path)
@@ -47,22 +51,14 @@ class CatcherPub(Node):
         control.linear.x = speed
         self.publisher.publish(control)
 
-def main():
-    angle_tolerance = 10
-    dist_tolerance = 10
-    center = 320, 240
+    def timer_callback(self):
+        angle_tolerance = 10
+        dist_tolerance = 10
+        center = 320, 240
 
-    rclpy.init()
-    camera = CameraWorker()
-    image_processor = ImageProcessor()
-    frame = camera.getImage()
-    catcher_pub = CatcherPub()
-    rclpy.spin(catcher_pub)
-
-    while (True):
-        frame = camera.getImage()
-        relative_angle = image_processor.relativeAngle(frame)
-        target = image_processor.targetPoint(frame)
+        frame = self.camera.getImage()
+        relative_angle = self.image_processor.relativeAngle(frame)
+        target = self.image_processor.targetPoint(frame)
         # Set heading tests
         # control = relative_angle / 180
         # catcher_pub.set_heading(control)
@@ -70,9 +66,9 @@ def main():
             # do nothing
             pass
         elif relative_angle > 0:
-            catcher_pub.set_heading(1.0)
+            self.set_heading(1.0)
         elif relative_angle < 0:
-            catcher_pub.set_heading(-1.0)
+            self.set_heading(-1.0)
 
         # Set accel tests (assumes the center of the frame is safe)
         distance = (target[0] - center[0]), (target[1] - center[1])
@@ -80,9 +76,12 @@ def main():
             # do nothing
             pass
         elif distance > 0:
-            catcher_pub.set_speed(1.0)
-        time.sleep(0.1)
+            self.set_speed(1.0)
 
+def main():
+    rclpy.init()
+    catcher_pub = CatcherPub()
+    rclpy.spin(catcher_pub)
     rclpy.shutdown()
 
 if __name__ == "__main__":
