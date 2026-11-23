@@ -38,7 +38,7 @@ class CatcherPub(Node):
         param_req.parameters.append(param)
 
         future = client.call_async(param_req)
-        rclpy.spin_until_future_complete(self, future)
+        rclpy.spin_until_future_complete(self, future, timeout_sec = 1.0)
         self.get_logger().info("Response: %s" % future.result())
 
     def set_heading(self, offset):
@@ -59,24 +59,27 @@ class CatcherPub(Node):
         frame = self.camera.getImage()
         relative_angle = self.image_processor.relativeAngle(frame)
         target = self.image_processor.targetPoint(frame)
-        # Set heading tests
-        # control = relative_angle / 180
-        # catcher_pub.set_heading(control)
-        if abs(relative_angle) <= angle_tolerance:
-            # do nothing
-            pass
-        elif relative_angle > 0:
-            self.set_heading(1.0)
-        elif relative_angle < 0:
-            self.set_heading(-1.0)
 
-        # Set accel tests (assumes the center of the frame is safe)
-        distance = (target[0] - center[0]), (target[1] - center[1])
-        if abs(distance) <= dist_tolerance:
-            # do nothing
-            pass
-        elif distance > 0:
-            self.set_speed(1.0)
+        if relative_angle is not None:
+            # Set heading tests
+            # control = relative_angle / 180
+            # catcher_pub.set_heading(control)
+            if abs(relative_angle) <= angle_tolerance:
+                # do nothing
+                pass
+            elif relative_angle > 0:
+                self.set_heading(1.0)
+            elif relative_angle < 0:
+                self.set_heading(-1.0)
+
+        if target is not None:
+            # Set accel tests (assumes the center of the frame is safe)
+            distance = (target[0] - center[0]), (target[1] - center[1])
+            if abs(distance) <= dist_tolerance:
+                # do nothing
+                pass
+            elif distance > 0:
+                self.set_speed(1.0)
 
 def main():
     rclpy.init()
