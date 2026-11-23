@@ -10,7 +10,7 @@ import numpy as np
 import cv2
 import time
 
-from direction_from_camera import ImageProcessor, CameraWorker 
+from .direction_from_camera import ImageProcessor, CameraWorker 
 
 class CatcherPub(Node):
     def __init__(self):
