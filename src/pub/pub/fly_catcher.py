@@ -22,6 +22,7 @@ class CatcherPub(Node):
         param.value.string_value = "full"
 
         self.set_param('/rogue/motion_control/set_parameters', param)
+        self.publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
 
     def set_param(self, param_path, param):
         client = self.create_client(SetParameters, param_path)
@@ -39,12 +40,12 @@ class CatcherPub(Node):
     def set_heading(self, offset):
         control = Twist()
         control.angular.z = offset
-        return control
+        self.publisher.publish(control)
 
     def set_speed(self, speed):
         control = Twist()
         control.linear.x = speed
-        return control
+        self.publisher.publish(control)
 
 def main():
     angle_tolerance = 10
@@ -69,9 +70,9 @@ def main():
             # do nothing
             pass
         elif relative_angle > 0:
-            catcher_pub.set_heading(1)
+            catcher_pub.set_heading(1.0)
         elif relative_angle < 0:
-            catcher_pub.set_heading(-1)
+            catcher_pub.set_heading(-1.0)
 
         # Set accel tests (assumes the center of the frame is safe)
         distance = (target[0] - center[0]), (target[1] - center[1])
@@ -79,7 +80,7 @@ def main():
             # do nothing
             pass
         elif distance > 0:
-            catcher_pub.set_speed(1)
+            catcher_pub.set_speed(1.0)
         time.sleep(0.1)
 
     rclpy.shutdown()
