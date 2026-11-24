@@ -16,6 +16,8 @@ class CatcherPub(Node):
     def __init__(self):
         super().__init__('pub')
 
+        self.relative_angle = 0
+
         param = Parameter()
         param.name = "safety_override"
         param.value.type = ParameterType.PARAMETER_STRING
@@ -57,29 +59,26 @@ class CatcherPub(Node):
         center = 320, 240
 
         frame = self.camera.getImage()
-        relative_angle = self.image_processor.relativeAngle(frame)
-        target = self.image_processor.targetPoint(frame)
+        vector = self.image_processor.relativeVector(frame)
+        self.relative_angle, distance = vector if vector is not None else (self.relative_angle, float("infinity"))
 
-        if relative_angle is not None:
-            # Set heading tests
-            # control = relative_angle / 180
-            # catcher_pub.set_heading(control)
-            if abs(relative_angle) <= angle_tolerance:
-                # do nothing
-                pass
-            elif relative_angle > 0:
-                self.set_heading(1.0)
-            elif relative_angle < 0:
-                self.set_heading(-1.0)
+        # Set heading tests
+        # control = relative_angle / 180
+        # catcher_pub.set_heading(control)
+        if abs(self.relative_angle) <= angle_tolerance:
+            # do nothing
+            pass
+        elif self.relative_angle > 0:
+            self.set_heading(1.0)
+        elif self.relative_angle < 0:
+            self.set_heading(-1.0)
 
-        if target is not None:
-            # Set accel tests (assumes the center of the frame is safe)
-            distance = (target[0] - center[0]), (target[1] - center[1])
-            if abs(distance) <= dist_tolerance:
-                # do nothing
-                pass
-            elif distance > 0:
-                self.set_speed(1.0)
+        # Set accel tests (assumes the center of the frame is safe)
+        if abs(distance) <= dist_tolerance:
+            # do nothing
+            pass
+        elif distance > 0:
+            self.set_speed(1.0)
 
 def main():
     rclpy.init()
