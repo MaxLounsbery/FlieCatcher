@@ -61,8 +61,10 @@ class CatcherPub(Node):
         self.publisher.publish(control)
 
     def timer_callback(self):
-        angle_tolerance = 10
-        dist_tolerance = 10
+        ANGLE_TOLERANCE = 10
+        DIST_TOLERANCE = 10
+        MIN_ANGLE = -45
+        MAX_ANGLE = 45
 
         frame = self.camera.getImage()
         vector = self.image_processor.relativeVector(frame)
@@ -73,7 +75,7 @@ class CatcherPub(Node):
         # Set heading tests
         # control = relative_angle / 180
         # catcher_pub.set_heading(control)
-        if abs(self.relative_angle) <= angle_tolerance:
+        if abs(self.relative_angle) <= ANGLE_TOLERANCE:
             # do nothing, heading stays 0
             pass
         elif self.relative_angle > 0:
@@ -84,11 +86,7 @@ class CatcherPub(Node):
             heading = 1
 
         # Set accel tests (assumes the center of the frame is safe)
-        # TODO: change this to consider angle as well when wanting to move forward
-        if abs(distance) <= dist_tolerance:
-            # do nothing, speed stays 0
-            pass
-        elif distance > 0:
+        if distance > DIST_TOLERANCE and MIN_ANGLE < self.relative_angle < MAX_ANGLE:
             speed = 1
 
         self.set_twist(speed, heading)
