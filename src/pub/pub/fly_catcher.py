@@ -66,7 +66,14 @@ class CatcherPub(Node):
 
         frame = self.camera.getImage()
         vector = self.image_processor.relativeVector(frame)
-        self.relative_angle, distance = vector if vector is not None else (self.relative_angle, float("infinity"))
+
+        if vector is None:
+            self.relative_angle = 0
+            self.distance = 0
+        else:
+            self.relative_angle = vector[0]
+            self.distance = vector[1]
+        # self.relative_angle, distance = vector if vector is not None else (self.relative_angle, float("infinity"))
 
         
         speed, heading = 0,0
