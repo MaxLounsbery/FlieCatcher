@@ -3,7 +3,6 @@ from picamera2 import Picamera2, Preview
 import numpy as np
 import cv2
 import time
-import math
 
 class CameraWorker:
     def __init__(self):
@@ -149,4 +148,4 @@ class ImageProcessor:
         if relative > 180:
             relative -= 360
 
-        return relative, math.dist(dx, dy)
+        return relative, np.hypot(dx, dy)
