@@ -93,7 +93,7 @@ class CatcherPub(Node):
             heading = 1
 
         # Set accel tests (assumes the center of the frame is safe)
-        if distance > DIST_TOLERANCE and MIN_ANGLE < self.relative_angle < MAX_ANGLE:
+        if self.distance > DIST_TOLERANCE and MIN_ANGLE < self.relative_angle < MAX_ANGLE:
             speed = 1
 
         self.set_twist(speed, heading)
