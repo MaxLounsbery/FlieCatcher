@@ -6,7 +6,7 @@ platforms = ["linux-64", "linux-aarch64"]
 version = "0.1.0"
 
 [tasks]
-sim = "ros2 run turtlesim turtlesim_node"
+start = "ros2 run pub fly_catcher"
 build = "colcon build --symlink-install"
 
 [activation]
