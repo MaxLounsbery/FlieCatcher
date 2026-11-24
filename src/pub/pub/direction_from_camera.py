@@ -12,6 +12,7 @@ class CameraWorker:
         )
         self.picam2.configure(config)
         self.picam2.start()
+        self.picam2.capture_file("camera_view.jpg")
 
     def getImage(self):
         return self.picam2.capture_array()  # of shape (480, 640, 3), in BGR order

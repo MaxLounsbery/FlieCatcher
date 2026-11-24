@@ -62,7 +62,7 @@ class CatcherPub(Node):
 
     def timer_callback(self):
         ANGLE_TOLERANCE = 10
-        DIST_TOLERANCE = 10
+        DIST_TOLERANCE = 30
         MIN_ANGLE = -45
         MAX_ANGLE = 45
 
@@ -75,6 +75,7 @@ class CatcherPub(Node):
         else:
             self.relative_angle = vector[0]
             self.distance = vector[1]
+            print(f"Drone detected at distance: {self.distance} and relative angle: {self.relative_angle}")
         # self.relative_angle, distance = vector if vector is not None else (self.relative_angle, float("infinity"))
 
         
