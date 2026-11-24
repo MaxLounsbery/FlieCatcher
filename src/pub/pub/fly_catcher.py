@@ -62,7 +62,7 @@ class CatcherPub(Node):
 
     def timer_callback(self):
         ANGLE_TOLERANCE = 10
-        DIST_TOLERANCE = 30
+        DIST_TOLERANCE = 15
         MIN_ANGLE = -45
         MAX_ANGLE = 45
 
