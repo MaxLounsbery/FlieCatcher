@@ -126,3 +126,27 @@ class ImageProcessor:
             relative -= 360
 
         return relative
+
+    def relativeVector(self, image):
+        """
+        given a RGB888 image of dimensions (imageX, imageY, 3) in BGR order
+
+        returns (angle, distance) of the target point, where angle (degrees) is relative to
+        baseAngle in the range (-180, 180] and distance is pixels from the center point
+        returns None if there is no target
+        """
+        target = self.targetPoint(image)
+        if target is None:
+            return None
+
+        x, y = target
+        dx = x - self.centerX
+        # image y grows downwards, flip it so up is positive
+        dy = self.centerY - y
+
+        # wrap the difference back into (-180, 180]
+        relative = (float(np.degrees(np.arctan2(dy, dx))) - self.baseAngle) % 360
+        if relative > 180:
+            relative -= 360
+
+        return relative, float(np.hypot(dx, dy))
