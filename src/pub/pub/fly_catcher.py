@@ -24,9 +24,10 @@ class CatcherPub(Node):
         param.value.string_value = "full"
 
         self.set_param('/rogue/motion_control/set_parameters', param)
-        self.publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+        self.publisher = self.create_publisher(Twist, '/rogue/cmd_vel', 10)
         self.camera = CameraWorker()
-        self.image_processor = ImageProcessor()
+        # TODO: tune angle offset
+        self.image_processor = ImageProcessor(baseAngle=90)
 
         self.create_timer(0.1, self.timer_callback)
 
@@ -45,40 +46,52 @@ class CatcherPub(Node):
 
     def set_heading(self, offset):
         control = Twist()
-        control.angular.z = offset
+        control.angular.z = float(offset)
         self.publisher.publish(control)
 
     def set_speed(self, speed):
         control = Twist()
-        control.linear.x = speed
+        control.linear.x = float(speed)
+        self.publisher.publish(control)
+
+    def set_twist(self, speed, offset):
+        control = Twist()
+        control.linear.x = float(speed)
+        control.angular.z = float(offset)
         self.publisher.publish(control)
 
     def timer_callback(self):
         angle_tolerance = 10
         dist_tolerance = 10
-        center = 320, 240
 
         frame = self.camera.getImage()
         vector = self.image_processor.relativeVector(frame)
         self.relative_angle, distance = vector if vector is not None else (self.relative_angle, float("infinity"))
 
+        
+        speed, heading = 0,0
         # Set heading tests
         # control = relative_angle / 180
         # catcher_pub.set_heading(control)
         if abs(self.relative_angle) <= angle_tolerance:
-            # do nothing
+            # do nothing, heading stays 0
             pass
         elif self.relative_angle > 0:
-            self.set_heading(1.0)
+            # NOTE: might need to flip these back?
+            #       if camera is on floor looking up, heading might be reversed
+            heading = -1
         elif self.relative_angle < 0:
-            self.set_heading(-1.0)
+            heading = 1
 
         # Set accel tests (assumes the center of the frame is safe)
+        # TODO: change this to consider angle as well when wanting to move forward
         if abs(distance) <= dist_tolerance:
-            # do nothing
+            # do nothing, speed stays 0
             pass
         elif distance > 0:
-            self.set_speed(1.0)
+            speed = 1
+
+        self.set_twist(speed, heading)
 
 def main():
     rclpy.init()
